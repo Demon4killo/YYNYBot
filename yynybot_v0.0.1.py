@@ -16,6 +16,20 @@ CHANNEL_NAME = "@yynyChannel"
 WELCOME = "Добро пожаловать в чатик с YYNY ботом \nДля помощи наберите ""/help"""
 HELP = "\tВведите четыре вопроса любого содержания, после каждого нажимая \"Ввод\" \n\tБот отвечает на вопросы только Да или Нет, поэтому будьте бдительны \n\tПосле ввода последнего вопроса, Вам будет показан итог переписки\n\tНачать сначала \t- \t""/start"""
 
+def get_author(message):
+ if message.chat.username :
+   Author =  message.chat.username
+ elif message.chat.first_name and message.chat.last_name : 
+   Author = message.chat.first_name + " " + message.chat.last_name
+ elif message.chat.first_name and not message.chat.last_name : 
+   Author = message.chat.first_name
+ elif not message.chat.first_name and message.chat.last_name :
+   Author = message.chat.last_name 
+ else : 
+   Author = "Unknown User" 
+ return Author
+
+
 @bot.message_handler(commands=["start"])
 def send_welcome(message):
         global msgcount
@@ -38,40 +52,30 @@ def repeat_all_messages(message):
     global msgcount
     global totalMsg
     if rcount == 4 :
-        bot.send_message(message.chat.id, "\nВопрос " + str(msgcount+1) + " из 4:")
-        totalMsg = totalMsg + ": " + message.text + "\nYYNY: Да хрен его знает \n \n"
+        totalMsg = totalMsg + ": " + message.text + "\nYYNY: Да от куда мне это знать \n \n"
         print ("Вы: \t" + message.text + "\n Bot: \t ХЗ \n ")
         msgcount += 1
+        bot.send_message(message.chat.id, "\nВопрос " + str(msgcount+1) + " из 4:") if msgcount < 4 else bot.send_message(message.chat.id, "начнём с начала? ""/start") 
     else :
         if rand :
             #message.chat.username
-            bot.send_message(message.chat.id, "\nВопрос " +str(msgcount+1) + " из 4:")
             totalMsg = totalMsg + "Вы: " + message.text + "\nYYNYBot: Да\n \n"
             print ("Вы : \t" + message.text + "\n Bot: \t Да \n ")
             msgcount += 1
+            bot.send_message(message.chat.id, "\nВопрос " + str(msgcount+1) + " из 4:") if msgcount < 4 else bot.send_message(message.chat.id, "начнём с начала? ""/start") 
         else :
-            bot.send_message(message.chat.id, "\nВопрос " + str(msgcount+1) + " из 4:")
             totalMsg = totalMsg + "Вы: " + message.text + "\nYYNYBot: Нет \n \n"
             print ("Вы: \t" + message.text + "\n Bot: \t Нет \n")
             msgcount += 1
-        if msgcount == 4 :
-            bot.send_message(message.chat.id, "\n \n \t Вашы запросы обработаны ботом с глубоким усердием и в итоге чат принял следующую форму и содержание: \n \n" + totalMsg)    
+            bot.send_message(message.chat.id, "\nВопрос " + str(msgcount+1) + " из 4:") if msgcount < 4 else bot.send_message(message.chat.id, "начнём с начала? ""/start") 
+        if msgcount > 3 :
             if 0 <= rcount <= 16 :
-               if message.chat.username :
-                 Author =  message.chat.username
-               elif message.chat.first_name and message.chat.last_name : 
-                 Author = message.chat.first_name + " " + message.chat.last_name
-               elif message.chat.first_name and not message.chat.last_name : 
-                 Author = message.chat.first_name
-               elif not message.chat.first_name and message.chat.last_name :
-                 Author = message.chat.last_name
-               else : 
-                 Author = "Unknown User" 
-               bot.send_message(CHANNEL_NAME, totalMsg + "\nAuthor: " +  Author)
+                bot.send_message(CHANNEL_NAME, totalMsg + "\nAuthor: " +  get_author(message))
+            bot.send_message(message.chat.id, "\n \n \t Вашы запросы обработаны ботом с глубоким усердием и в итоге чат принял следующую форму и содержание: \n \n" + totalMsg)    
             msgcount = 0
-            totalMsg = "Вопрос 1 из 4:"
-            Author = ""
-            print ("rcount = " + str(rcount))
-            print ("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")       
+            totalMsg = ""
+            print ("rcount = " + str(rcount) + " and Author: " + get_author(message))
+            print ("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>") 
+                           
 if __name__ == '__main__':
-    bot.polling(none_stop=True)
+    bot.polling(none_stop=False)
